@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Namaska tabla</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Montserrat', sans-serif;
+}
+
+.screen{
+    width:1080px;
+    height:1920px;
+    background:url("background.png") no-repeat center center;
+    background-size:cover;
+    display:flex;
+    flex-direction:column;
+    color:white;
+    overflow:hidden;
+}
+
+/* HEADER */
+.header{
+    position:relative;
+    height:180px;
+}
+
+.clock{
+    position:absolute;
+    right:60px;
+    top:40px;
+    font-size:70px;
+    font-weight:700;
+}
+
+/* BEŽ TRAKE */
+.bar{
+    background:#e7d7b9;
+    color:#333;
+    text-align:center;
+    padding:18px;
+    font-size:32px;
+    font-weight:600;
+    border-top:4px solid #cdbfa4;
+    border-bottom:4px solid #cdbfa4;
+}
+
+/* NAMAZI */
+.prayers{
+    flex:1.4;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:40px 120px;
+}
+
+.prayer-row{
+    display:flex;
+    justify-content:space-between;
+    padding:25px 0;
+    font-size:60px;
+    border-bottom:3px solid rgba(255,255,255,0.5);
+}
+
+.prayer-name{
+    font-weight:800;
+}
+
+/* SLEDECI */
+.next{
+    font-size:36px;
+}
+
+/* TICKER */
+.ticker{
+    background:#e7d7b9;
+    color:#222;
+    font-size:32px;
+    padding:15px 0;
+    overflow:hidden;
+    white-space:nowrap;
+}
+
+.ticker span{
+    display:inline-block;
+    padding-left:100%;
+    animation:scroll 20s linear infinite;
+}
+
+@keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-100%);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="screen">
+
+    <div class="header">
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <div class="bar">
+        <span id="todayDate"></span>
+    </div>
+
+    <div class="prayers">
+        <div class="prayer-row"><span class="prayer-name">SABAH</span><span>05:56</span></div>
+        <div class="prayer-row"><span class="prayer-name">IZL. SUNCA</span><span>06:16</span></div>
+        <div class="prayer-row"><span class="prayer-name">PODNE</span><span>11:52</span></div>
+        <div class="prayer-row"><span class="prayer-name">IKINDIJA</span><span>14:50</span></div>
+        <div class="prayer-row"><span class="prayer-name">AKŠAM</span><span>17:27</span></div>
+        <div class="prayer-row"><span class="prayer-name">JACIJA</span><span>18:46</span></div>
+    </div>
+
+    <div class="bar next">
+        Sljedeći namaz: <span id="nextName"></span> počinje za <span id="countdown"></span>
+    </div>
+
+    <div class="ticker">
+        <span>Dobrodošli • Hutba svakog petka u 12:00 • Mekteb subotom u 10:00 • </span>
+    </div>
+
+</div>
+
+<script>
+
+/* SAT */
+function updateClock(){
+    const now = new Date();
+    document.getElementById("clock").innerText =
+        now.toLocaleTimeString('bs-BA',{hour12:false});
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* DATUM */
+function updateDate(){
+    const now = new Date();
+    document.getElementById("todayDate").innerText =
+        now.toLocaleDateString('bs-BA',{
+            weekday:'long',
+            day:'numeric',
+            month:'long',
+            year:'numeric'
+        });
+}
+updateDate();
+
+/* NAMAZ */
+const prayers = [
+    {name:"Sabah", time:"05:56"},
+    {name:"Podne", time:"11:52"},
+    {name:"Ikindija", time:"14:50"},
+    {name:"Akšam", time:"17:27"},
+    {name:"Jacija", time:"18:46"}
+];
+
+function updateCountdown(){
+    const now = new Date();
+    let nextPrayer=null, nextTime=null;
+
+    for(let p of prayers){
+        let [h,m]=p.time.split(":");
+        let t=new Date();
+        t.setHours(h,m,0);
+        if(t>now){ nextPrayer=p.name; nextTime=t; break;}
+    }
+
+    if(!nextPrayer){
+        let [h,m]=prayers[0].time.split(":");
+        nextTime=new Date();
+        nextTime.setDate(nextTime.getDate()+1);
+        nextTime.setHours(h,m,0);
+        nextPrayer=prayers[0].name;
+    }
+
+    let diff=nextTime-now;
+    let h=Math.floor(diff/1000/60/60);
+    let m=Math.floor((diff/1000/60)%60);
+    let s=Math.floor((diff/1000)%60);
+
+    document.getElementById("nextName").innerText=nextPrayer;
+    document.getElementById("countdown").innerText=
+        String(h).padStart(2,'0')+":"+
+        String(m).padStart(2,'0')+":"+
+        String(s).padStart(2,'0');
+}
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+</script>
+
+</body>
+</html>
